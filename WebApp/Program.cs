@@ -1,6 +1,6 @@
-using CinemaBooking.Components;
+using WebApp.Components;
 
-namespace CinemaBooking
+namespace WebApp
 {
     public class Program
     {
@@ -11,6 +11,10 @@ namespace CinemaBooking
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            // Dependency Injection (Composition Root)
+            builder.Services.AddSingleton<UseCases.DataStorePluginInterfaces.IMovieRepository, Plugins.DataStore.InMemory.MovieInMemoryRepository>();
+            builder.Services.AddTransient<UseCases.ViewMoviesUseCase>();
 
             var app = builder.Build();
 
