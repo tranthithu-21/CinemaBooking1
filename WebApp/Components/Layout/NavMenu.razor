@@ -1,35 +1,73 @@
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">🎬 CineMax Booking</a>
-    </div>
+<div class="top-row px-3 navbar navbar-dark d-flex align-items-center justify-content-between" style="height: 64px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="">
+        <span class="fs-4">🎬</span>
+        <div>
+            <span class="fw-bold fs-5 text-white">Cine<span style="color: #38bdf8;">Max</span></span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 10px; vertical-align: top;">VIP</span>
+        </div>
+    </a>
+    <button title="Navigation menu" class="navbar-toggler d-md-none" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column px-2 py-3">
+        <div class="text-uppercase text-secondary px-3 mb-2" style="font-size: 11px; font-weight: 700; letter-spacing: 1px;">
+            Hệ Thống
+        </div>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> 🏠 Phim Đang Chiếu
+        <div class="nav-item mb-1">
+            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-film fs-5"></i>
+                <span class="fw-semibold">Phim Đang Chiếu</span>
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="booking">
-                <span class="bi bi-ticket-perforated-nav-menu" aria-hidden="true"></span> 🎟️ Đặt Vé (Luật 1 & TX)
+        <div class="nav-item mb-1">
+            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="booking">
+                <i class="bi bi-ticket-perforated fs-5"></i>
+                <span class="fw-semibold">Đặt Vé (Luật 1)</span>
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin/showtimes">
-                <span class="bi bi-calendar-event-nav-menu" aria-hidden="true"></span> 📅 Quản Lý Lịch (Luật 2)
+        <div class="text-uppercase text-secondary px-3 mt-3 mb-2" style="font-size: 11px; font-weight: 700; letter-spacing: 1px;">
+            Quản Trị
+        </div>
+
+        <div class="nav-item mb-1">
+            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="admin/showtimes">
+                <i class="bi bi-calendar2-range fs-5"></i>
+                <span class="fw-semibold">Lịch Chiếu (Luật 2)</span>
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin/bookings">
-                <span class="bi bi-receipt-nav-menu" aria-hidden="true"></span> 📑 Đơn Đặt Vé (SQL)
+        <div class="nav-item mb-1">
+            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="admin/bookings">
+                <i class="bi bi-receipt-cutoff fs-5"></i>
+                <span class="fw-semibold">Đơn Đặt Vé (SQL)</span>
             </NavLink>
+        </div>
+
+        <!-- Box trang thai ket noi SQL Server -->
+        <div class="mt-4 mx-2 p-3 rounded-3" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="spinner-grow spinner-grow-sm text-success" role="status" style="width: 8px; height: 8px;"></span>
+                <span class="text-success small fw-bold" style="font-size: 11px;">SQL Server LocalDB</span>
+            </div>
+            <div class="text-muted small" style="font-size: 11px;">
+                Dapper + 100% Parameterized Query
+            </div>
         </div>
     </nav>
 </div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

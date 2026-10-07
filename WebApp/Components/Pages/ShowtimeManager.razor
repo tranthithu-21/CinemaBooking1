@@ -5,51 +5,61 @@
 @inject IShowtimeRepository ShowtimeRepository
 @inject IAuditoriumRepository AuditoriumRepository
 
-<PageTitle>Quản Lý Suất Chiếu — Demo Luật 2</PageTitle>
+<PageTitle>Quản Lý Suất Chiếu — Demo Luật 2 — CineMax VIP</PageTitle>
 
-<div class="container py-4">
+<div class="container-fluid px-0">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
         <div>
-            <h2 class="fw-bold text-primary mb-1">📅 Quản Lý Suất Chiếu & Lịch Phòng</h2>
-            <p class="text-muted mb-0">Cài đặt LUẬT 2: Tránh trùng lịch phòng chiếu (Thời lượng phim + 15 phút dọn phòng)</p>
+            <h2 class="fw-bold text-white mb-1">📅 Quản Lý Lịch Chiếu & Suất Chiếu</h2>
+            <p class="text-secondary small mb-0" style="color: #94a3b8 !important;">
+                Cài đặt <strong>LUẬT 2 (K1.3)</strong>: Tự tính thời gian kết thúc = <code>Thời lượng + 15 phút dọn phòng</code> & Chặn chồng lấn phòng chiếu
+            </p>
         </div>
-        <div>
-            <a href="/" class="btn btn-outline-secondary btn-sm">← Về trang chủ</a>
+        <div class="mt-2 mt-md-0">
+            <a href="/" class="btn btn-cinema-outline btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại trang chủ
+            </a>
         </div>
     </div>
 
     <!-- Thông báo lỗi / thành công (K1.3 & K3.3) -->
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-            <span class="fs-4 me-2">🚫</span>
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-lg border-danger mb-4" 
+             style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #fecdd3;" role="alert">
+            <i class="bi bi-calendar-x-fill fs-3 me-3 text-danger"></i>
             <div>
-                <strong>Lỗi vi phạm nghiệp vụ (Luật 2):</strong> @errorMessage
+                <strong class="d-block text-white mb-1">CẢNH BÁO TRÙNG LỊCH PHÒNG CHIẾU (LUẬT 2 - K1.3):</strong>
+                <span>@errorMessage</span>
             </div>
-            <button type="button" class="btn-close ms-auto" @onclick="() => errorMessage = null"></button>
+            <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => errorMessage = null"></button>
         </div>
     }
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-            <span class="fs-4 me-2">✅</span>
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-lg border-success mb-4" 
+             style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0;" role="alert">
+            <i class="bi bi-check-circle-fill fs-3 me-3 text-success"></i>
             <div>
-                <strong>Thành công:</strong> @successMessage
+                <strong class="d-block text-white mb-1">THÀNH CÔNG:</strong>
+                <span>@successMessage</span>
             </div>
-            <button type="button" class="btn-close ms-auto" @onclick="() => successMessage = null"></button>
+            <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => successMessage = null"></button>
         </div>
     }
 
     <div class="row g-4">
         <!-- Cột trái: Form tạo suất chiếu mới -->
         <div class="col-lg-5">
-            <div class="card shadow-sm border-0 rounded-3 p-4">
-                <h5 class="fw-bold mb-3 border-bottom pb-2">➕ Tạo Suất Chiếu Mới</h5>
+            <div class="card p-4 shadow-sm">
+                <h5 class="fw-bold text-white mb-3 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    ➕ Tạo Suất Chiếu Mới
+                </h5>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Chọn phim *</label>
+                    <label class="form-label text-secondary small fw-semibold">Chọn phim *</label>
                     <select class="form-select form-select-sm" @bind="selectedMovieId">
                         @if (movies != null)
                         {
@@ -62,7 +72,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Phòng chiếu *</label>
+                    <label class="form-label text-secondary small fw-semibold">Phòng chiếu *</label>
                     <select class="form-select form-select-sm" @bind="selectedAuditoriumId">
                         @if (auditoriums != null)
                         {
@@ -75,31 +85,33 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Thời gian bắt đầu chiếu *</label>
+                    <label class="form-label text-secondary small fw-semibold">Thời gian bắt đầu chiếu *</label>
                     <input type="datetime-local" class="form-control form-control-sm" @bind="startTime" />
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Giá vé (VNĐ) *</label>
+                    <label class="form-label text-secondary small fw-semibold">Giá vé (VNĐ) *</label>
                     <input type="number" step="5000" class="form-control form-control-sm" @bind="price" />
                 </div>
 
                 <!-- Box thông tin thời gian tự động tính -->
-                <div class="p-3 bg-light rounded-3 mb-3 border">
-                    <div class="small text-muted mb-1">⏱️ <strong>Quy tắc thời gian (Luật 2):</strong></div>
-                    <div class="small text-dark">
-                        Thời gian kết thúc tự tính = <code>Giờ bắt đầu + @(SelectedMovieDuration)p (phim) + 15p (dọn phòng)</code>
+                <div class="p-3 rounded-3 mb-4" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
+                    <div class="small text-secondary mb-1">
+                        ⏱️ <strong>Quy tắc tự động tính (Luật 2):</strong>
                     </div>
-                    <div class="small text-primary fw-bold mt-1">
-                        Dự kiến kết thúc: @(startTime.AddMinutes(SelectedMovieDuration + 15).ToString("HH:mm dd/MM/yyyy"))
+                    <div class="small text-white">
+                        Giờ kết thúc = Giờ bắt đầu + @(SelectedMovieDuration)p (phim) + 15p (dọn phòng)
+                    </div>
+                    <div class="small fw-bold mt-1" style="color: #38bdf8;">
+                        ➜ Dự kiến kết thúc: @(startTime.AddMinutes(SelectedMovieDuration + 15).ToString("HH:mm dd/MM/yyyy"))
                     </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary flex-grow-1 fw-bold btn-sm py-2" @onclick="CreateShowtimeAsync">
-                        Lưu Suất Chiếu
+                <div class="d-flex flex-column gap-2">
+                    <button class="btn btn-cinema w-100 py-2 fw-bold" @onclick="CreateShowtimeAsync">
+                        <i class="bi bi-save2-fill me-1"></i> Lưu Suất Chiếu Vào SQL Server
                     </button>
-                    <button class="btn btn-outline-warning btn-sm" @onclick="SimulateOverlapConflictAsync">
+                    <button class="btn btn-outline-warning btn-sm py-2 rounded-pill fw-semibold" @onclick="SimulateOverlapConflictAsync">
                         ⚡ Thử Trùng Lịch (Demo Luật 2)
                     </button>
                 </div>
@@ -108,48 +120,50 @@
 
         <!-- Cột phải: Danh sách các suất chiếu hiện có trên SQL Server -->
         <div class="col-lg-7">
-            <div class="card shadow-sm border-0 rounded-3 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                    <h5 class="fw-bold mb-0">📋 Lịch Chiếu Đang Có Trên SQL Server</h5>
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="LoadDataAsync">🔄 Làm mới</button>
+            <div class="card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="fw-bold text-white mb-0">📋 Lịch Chiếu Đang Có Trong CSDL</h5>
+                    <button class="btn btn-cinema-outline btn-sm" @onclick="LoadDataAsync">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Làm mới
+                    </button>
                 </div>
 
                 @if (showtimes == null)
                 {
                     <div class="text-center py-4">
                         <div class="spinner-border spinner-border-sm text-primary"></div>
-                        <span class="ms-2 text-muted small">Đang tải lịch chiếu...</span>
+                        <span class="ms-2 text-muted small">Đang nạp danh sách từ SQL Server...</span>
                     </div>
                 }
                 else if (!showtimes.Any())
                 {
-                    <p class="text-muted small fst-italic">Chưa có suất chiếu nào được tạo.</p>
+                    <p class="text-muted small fst-italic">Chưa có suất chiếu nào được tạo trong CSDL.</p>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle">
-                            <thead class="table-light small">
-                                <tr>
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr style="color: #64748b; font-size: 12px; text-transform: uppercase;">
                                     <th>Phim</th>
                                     <th>Phòng</th>
                                     <th>Bắt đầu</th>
-                                    <th>Kết thúc</th>
+                                    <th>Kết thúc (+15p)</th>
                                     <th>Giá vé</th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody class="small">
+                            <tbody style="font-size: 13.5px;">
                                 @foreach (var st in showtimes)
                                 {
                                     <tr>
-                                        <td class="fw-bold">@st.Movie?.Title</td>
-                                        <td><span class="badge bg-secondary">@st.Auditorium?.Name</span></td>
+                                        <td class="fw-bold text-white">@st.Movie?.Title</td>
+                                        <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">@st.Auditorium?.Name</span></td>
                                         <td class="text-success fw-bold">@st.StartTime.ToString("HH:mm dd/MM")</td>
-                                        <td class="text-danger fw-bold">@st.EndTime.ToString("HH:mm dd/MM")</td>
-                                        <td>@st.Price.ToString("N0") đ</td>
+                                        <td class="text-warning fw-bold">@st.EndTime.ToString("HH:mm dd/MM")</td>
+                                        <td style="color: #38bdf8;">@st.Price.ToString("N0") đ</td>
                                         <td>
-                                            <a href="/booking/@st.ShowtimeId" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                            <a href="/booking/@st.ShowtimeId" class="btn btn-cinema-outline btn-sm py-0 px-2" style="font-size: 12px;">
                                                 Đặt vé
                                             </a>
                                         </td>
@@ -228,7 +242,6 @@
     {
         if (showtimes == null || !showtimes.Any()) return;
 
-        // Lấy 1 suất chiếu có sẵn để cố tình chọn khung giờ bị trùng
         var existing = showtimes.First();
         selectedMovieId = existing.MovieId;
         selectedAuditoriumId = existing.AuditoriumId;
