@@ -2,19 +2,23 @@
 @rendermode InteractiveServer
 @inject ViewBookingsUseCase ViewBookingsUseCase
 
-<PageTitle>Danh Sách Đơn Đặt Vé (SQL Server) — CineMax VIP</PageTitle>
+<PageTitle>Danh Sách Vé Đã Đặt — CineMax VIP</PageTitle>
 
-<div class="container-fluid px-0">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+<div>
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
         <div>
-            <h2 class="fw-bold text-white mb-1">📑 Danh Sách Đơn Đặt Vé (SQL Server)</h2>
-            <p class="text-secondary small mb-0" style="color: #94a3b8 !important;">
-                Kiểm tra dữ liệu Header (Bookings) và Line (Tickets) đã lưu thực tế trong CSDL (K2.4)
+            <h2 class="fw-bold text-white mb-1" style="font-size: 26px;">
+                Quản Lý Đơn Đặt Vé
+            </h2>
+            <p class="text-secondary small mb-0">
+                Tra cứu thông tin vé xem phim và chi tiết chỗ ngồi của khách hàng
             </p>
         </div>
         <div class="mt-2 mt-md-0">
-            <a href="/" class="btn btn-cinema-outline btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Quay lại trang chủ
+            <a href="/" class="btn-cinema-outline" style="font-size: 13.5px; padding: 7px 16px;">
+                <i class="bi bi-arrow-left"></i>
+                <span>Về Trang Chủ</span>
             </a>
         </div>
     </div>
@@ -22,61 +26,66 @@
     @if (bookings == null)
     {
         <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted small">Đang tải danh sách đặt vé từ SQL Server...</p>
+            <div class="spinner-border text-danger" role="status"></div>
+            <p class="mt-2 text-secondary small">Đang nạp danh sách đơn vé...</p>
         </div>
     }
     else if (!bookings.Any())
     {
-        <div class="card p-5 text-center shadow-sm">
+        <div class="cinema-card p-5 text-center shadow-sm">
             <i class="bi bi-inbox fs-1 text-secondary mb-3"></i>
-            <h5 class="fw-bold text-white mb-2">Chưa có đơn đặt vé nào</h5>
-            <p class="text-secondary small mb-3">Chưa có đơn đặt vé nào trong CSDL SQL Server.</p>
+            <h4 class="fw-bold text-white mb-2">Chưa Có Đơn Đặt Vé Nào</h4>
+            <p class="text-secondary small mb-4">Hiện tại chưa có giao dịch đặt vé nào được thực hiện.</p>
             <div>
-                <a href="/booking/1" class="btn btn-cinema btn-sm px-4">
-                    <i class="bi bi-ticket-perforated me-1"></i> Đến trang Đặt vé để tạo giao dịch mẫu
+                <a href="/booking/1" class="btn-cinema-primary">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span>Tới Trang Đặt Vé</span>
                 </a>
             </div>
         </div>
     }
     else
     {
-        <div class="card shadow-sm overflow-hidden">
+        <div class="cinema-card shadow-sm overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="cinema-table">
                     <thead>
-                        <tr style="color: #64748b; font-size: 12px; text-transform: uppercase;">
-                            <th class="ps-4">Mã Đơn (#)</th>
+                        <tr>
+                            <th class="ps-4">Mã Đơn</th>
                             <th>Khách Hàng</th>
                             <th>Liên Hệ</th>
                             <th>Suất Chiếu</th>
                             <th>Thời Gian Đặt</th>
-                            <th>Tổng Tiền (Header)</th>
+                            <th>Tổng Tiền</th>
                             <th>Trạng Thái</th>
                             <th class="pe-4 text-end">Chi Tiết</th>
                         </tr>
                     </thead>
-                    <tbody style="font-size: 13.5px;">
+                    <tbody>
                         @foreach (var b in bookings)
                         {
                             <tr>
-                                <td class="ps-4 fw-bold" style="color: #38bdf8;">#@b.BookingId</td>
+                                <td class="ps-4 fw-bold" style="color: #e11d48;">#@b.BookingId</td>
                                 <td class="fw-semibold text-white">@b.CustomerName</td>
                                 <td class="small text-secondary">
                                     <div><i class="bi bi-telephone me-1"></i>@b.CustomerPhone</div>
                                     <div><i class="bi bi-envelope me-1"></i>@b.CustomerEmail</div>
                                 </td>
-                                <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Suất #@b.ShowtimeId</span></td>
+                                <td>
+                                    <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                                        Suất #@b.ShowtimeId
+                                    </span>
+                                </td>
                                 <td class="small text-secondary">@b.BookingTime.ToString("HH:mm dd/MM/yyyy")</td>
                                 <td class="fw-bold text-white fs-6">@b.TotalAmount.ToString("N0") đ</td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                        ● @b.Status
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                        Đã xác nhận
                                     </span>
                                 </td>
                                 <td class="pe-4 text-end">
-                                    <button class="btn btn-cinema-outline btn-sm py-1 px-3" @onclick="() => ViewDetailsAsync(b.BookingId)">
-                                        <i class="bi bi-eye me-1"></i> Xem vé
+                                    <button class="btn-cinema-outline py-1 px-3" style="font-size: 12.5px;" @onclick="() => ViewDetailsAsync(b.BookingId)">
+                                        <i class="bi bi-eye"></i> Xem vé
                                     </button>
                                 </td>
                             </tr>
@@ -87,33 +96,36 @@
         </div>
     }
 
-    <!-- Modal xem chi tiết vé thuộc Booking (Lines) -->
+    <!-- Modal xem chi tiết vé -->
     @if (selectedBooking != null)
     {
-        <div class="modal fade show d-block" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);" tabindex="-1">
+        <div class="modal fade show d-block" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content card shadow-lg p-3" style="border: 1px solid rgba(56, 189, 248, 0.4) !important;">
+                <div class="modal-content cinema-card shadow-lg p-3" style="border: 1px solid rgba(225, 29, 72, 0.4) !important;">
                     <div class="modal-header border-0 pb-0">
                         <div>
-                            <span class="badge-genre mb-1 d-inline-block">GIAO DỊCH CẶP HEADER - LINE</span>
-                            <h5 class="modal-title fw-bold text-white">Đơn Đặt Vé #@selectedBooking.BookingId</h5>
+                            <span class="badge mb-1" style="background: rgba(225, 29, 72, 0.15); color: #f43f5e; border: 1px solid rgba(225, 29, 72, 0.3);">
+                                VÉ XEM PHIM ĐIỆN TỬ
+                            </span>
+                            <h4 class="modal-title fw-bold text-white">Đơn Đặt Vé #@selectedBooking.BookingId</h4>
                         </div>
                         <button type="button" class="btn-close btn-close-white" @onclick="() => selectedBooking = null"></button>
                     </div>
+                    
                     <div class="modal-body py-3">
-                        <div class="p-3 rounded-3 mb-3" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.06);">
+                        <div class="p-3 rounded-3 mb-3" style="background: rgba(7, 11, 20, 0.8); border: 1px solid var(--border-light);">
                             <div class="row g-2 small">
                                 <div class="col-6 text-secondary">Khách hàng:</div>
                                 <div class="col-6 fw-bold text-white text-end">@selectedBooking.CustomerName</div>
                                 <div class="col-6 text-secondary">Số điện thoại:</div>
                                 <div class="col-6 text-white text-end">@selectedBooking.CustomerPhone</div>
                                 <div class="col-6 text-secondary">Tổng thanh toán:</div>
-                                <div class="col-6 fw-bold text-end" style="color: #38bdf8;">@selectedBooking.TotalAmount.ToString("N0") đ</div>
+                                <div class="col-6 fw-bold text-end" style="color: #e11d48;">@selectedBooking.TotalAmount.ToString("N0") đ</div>
                             </div>
                         </div>
 
                         <div class="text-uppercase text-secondary small fw-bold mb-2" style="font-size: 11px; letter-spacing: 0.5px;">
-                            Danh Sách Vé Được Ghi Trong Transaction (Line Items):
+                            Danh Sách Ghế Ngồi Đã Đặt:
                         </div>
                         @if (selectedBooking.Tickets.Any())
                         {
@@ -121,23 +133,24 @@
                                 @foreach (var ticket in selectedBooking.Tickets)
                                 {
                                     <div class="p-2 px-3 rounded-2 d-flex justify-content-between align-items-center" 
-                                         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                                         style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light);">
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="seat-btn seat-selected d-inline-block text-center" style="width: 28px; height: 28px; line-height: 28px; font-size: 11px;">
+                                            <span class="seat seat-selected d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 11px;">
                                                 @ticket.Seat?.SeatNumber
                                             </span>
                                             <span class="small text-white">Ghế <strong>@ticket.Seat?.SeatNumber</strong> (@ticket.Seat?.SeatType)</span>
                                         </div>
-                                        <span class="fw-bold small" style="color: #38bdf8;">@ticket.Price.ToString("N0") đ</span>
+                                        <span class="fw-bold small text-white">@ticket.Price.ToString("N0") đ</span>
                                     </div>
                                 }
                             </div>
                         }
                         else
                         {
-                            <p class="text-muted small">Không tìm thấy chi tiết vé.</p>
+                            <p class="text-secondary small">Không tìm thấy chi tiết vé.</p>
                         }
                     </div>
+
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" @onclick="() => selectedBooking = null">Đóng</button>
                     </div>

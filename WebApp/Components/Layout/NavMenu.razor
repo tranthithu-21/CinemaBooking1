@@ -1,66 +1,70 @@
-<div class="top-row px-3 navbar navbar-dark d-flex align-items-center justify-content-between" style="height: 64px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-    <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="">
-        <span class="fs-4">🎬</span>
-        <div>
-            <span class="fw-bold fs-5 text-white">Cine<span style="color: #38bdf8;">Max</span></span>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 10px; vertical-align: top;">VIP</span>
-        </div>
-    </a>
-    <button title="Navigation menu" class="navbar-toggler d-md-none" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column px-2 py-3">
-        <div class="text-uppercase text-secondary px-3 mb-2" style="font-size: 11px; font-weight: 700; letter-spacing: 1px;">
-            Hệ Thống
-        </div>
-
-        <div class="nav-item mb-1">
-            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="" Match="NavLinkMatch.All">
-                <i class="bi bi-film fs-5"></i>
-                <span class="fw-semibold">Phim Đang Chiếu</span>
-            </NavLink>
-        </div>
-
-        <div class="nav-item mb-1">
-            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="booking">
-                <i class="bi bi-ticket-perforated fs-5"></i>
-                <span class="fw-semibold">Đặt Vé (Luật 1)</span>
-            </NavLink>
-        </div>
-
-        <div class="text-uppercase text-secondary px-3 mt-3 mb-2" style="font-size: 11px; font-weight: 700; letter-spacing: 1px;">
-            Quản Trị
-        </div>
-
-        <div class="nav-item mb-1">
-            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="admin/showtimes">
-                <i class="bi bi-calendar2-range fs-5"></i>
-                <span class="fw-semibold">Lịch Chiếu (Luật 2)</span>
-            </NavLink>
-        </div>
-
-        <div class="nav-item mb-1">
-            <NavLink class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="admin/bookings">
-                <i class="bi bi-receipt-cutoff fs-5"></i>
-                <span class="fw-semibold">Đơn Đặt Vé (SQL)</span>
-            </NavLink>
-        </div>
-
-        <!-- Box trang thai ket noi SQL Server -->
-        <div class="mt-4 mx-2 p-3 rounded-3" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.06);">
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="spinner-grow spinner-grow-sm text-success" role="status" style="width: 8px; height: 8px;"></span>
-                <span class="text-success small fw-bold" style="font-size: 11px;">SQL Server LocalDB</span>
+<nav class="navbar navbar-expand-lg py-3">
+    <div class="container-xxl">
+        <!-- Brand Logo -->
+        <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none me-4" href="">
+            <span class="fs-3">🎬</span>
+            <div class="lh-1">
+                <span class="fw-extrabold fs-4 text-white" style="font-weight: 800; letter-spacing: -0.5px;">
+                    Cine<span style="color: #e11d48;">Max</span>
+                </span>
+                <span class="badge ms-1" style="background: rgba(225, 29, 72, 0.2); color: #f43f5e; border: 1px solid rgba(225, 29, 72, 0.4); font-size: 10px; vertical-align: top;">
+                    VIP
+                </span>
             </div>
-            <div class="text-muted small" style="font-size: 11px;">
-                Dapper + 100% Parameterized Query
+        </a>
+
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler border-0 text-white" type="button" @onclick="ToggleNavMenu">
+            <i class="bi bi-list fs-2"></i>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="@NavMenuCssClass navbar-collapse" id="cinemaNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+                <li class="nav-item">
+                    <NavLink class="nav-link-custom" href="" Match="NavLinkMatch.All">
+                        <i class="bi bi-film"></i>
+                        <span>Phim Đang Chiếu</span>
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link-custom" href="booking">
+                        <i class="bi bi-ticket-perforated"></i>
+                        <span>Đặt Vé Nhanh</span>
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link-custom" href="admin/showtimes">
+                        <i class="bi bi-calendar2-range"></i>
+                        <span>Lịch Chiếu</span>
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link-custom" href="admin/bookings">
+                        <i class="bi bi-receipt"></i>
+                        <span>Vé Đã Mua</span>
+                    </NavLink>
+                </li>
+            </ul>
+
+            <!-- Right Controls: Hotline & Quick Action -->
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-none d-xl-flex align-items-center gap-2 text-secondary small">
+                    <i class="bi bi-headset fs-5 text-danger"></i>
+                    <div>
+                        <div class="lh-1 text-white fw-bold">1900 6017</div>
+                        <div class="lh-1 text-muted" style="font-size: 11px;">Hỗ trợ khách hàng</div>
+                    </div>
+                </div>
+
+                <a href="/booking/1" class="btn-cinema-primary text-decoration-none">
+                    <i class="bi bi-ticket-fill"></i>
+                    <span>Mua Vé Ngay</span>
+                </a>
             </div>
         </div>
-    </nav>
-</div>
+    </div>
+</nav>
 
 @code {
     private bool collapseNavMenu = true;

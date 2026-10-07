@@ -1,39 +1,54 @@
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+<div class="cinema-app">
+    <!-- Top Cinema Navigation Bar -->
+    <header class="cinema-header">
         <NavMenu />
-    </div>
+    </header>
 
-    <main>
-        <div class="top-row px-4 d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">
-                    ● Tuần 2: SQL Server & Dapper
-                </span>
-                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle d-none d-md-inline-block small">
-                    Clean Architecture 4 Tầng
-                </span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <a href="/admin/showtimes" class="btn btn-sm btn-outline-info text-decoration-none px-3 rounded-pill">
-                    <i class="bi bi-gear-fill me-1"></i> Quản Trị
-                </a>
-                <div class="d-flex align-items-center gap-2 text-white small">
-                    <i class="bi bi-person-circle fs-5 text-primary"></i>
-                    <span class="fw-semibold">Trần Thị Thu</span>
+    <!-- Main Content Area -->
+    <main class="cinema-main">
+        <div class="container-xxl py-4">
+            @Body
+        </div>
+    </main>
+
+    <!-- Commercial Cinema Footer -->
+    <footer class="cinema-footer">
+        <div class="container-xxl">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="fs-4">🎬</span>
+                        <span class="fw-bold fs-5 text-white">Cine<span style="color: #e11d48;">Max</span></span>
+                        <span class="badge" style="background: rgba(225, 29, 72, 0.2); color: #f43f5e; border: 1px solid rgba(225, 29, 72, 0.4); font-size: 11px;">
+                            PREMIUM CINEMA
+                        </span>
+                    </div>
+                    <p class="text-secondary small mb-0" style="max-width: 500px;">
+                        Hệ thống cụm rạp chiếu phim hiện đại chuẩn quốc tế. Trải nghiệm công nghệ chiếu IMAX Laser sắc nét cùng dàn âm thanh vòm Dolby Atmos đa chiều.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-inline-flex flex-column gap-1 text-md-end">
+                        <div class="small text-white">
+                            <i class="bi bi-telephone-fill text-danger me-2"></i>Hotline CSKH: <strong>1900 6017</strong> (08:00 - 24:00)
+                        </div>
+                        <div class="small text-secondary">
+                            <i class="bi bi-geo-alt-fill text-danger me-2"></i>Hệ thống phòng vé trên toàn quốc
+                        </div>
+                        <div class="small text-muted mt-1">
+                            © 2026 CineMax Booking. All rights reserved.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <article class="content px-3 px-md-4 py-4">
-            @Body
-        </article>
-    </main>
+    </footer>
 </div>
 
 <div id="blazor-error-ui">
-    Có lỗi xảy ra trong quá trình xử lý.
-    <a href="" class="reload text-white fw-bold">Tải lại trang</a>
+    Có lỗi xảy ra trong phiên làm việc.
+    <a href="" class="reload text-white fw-bold ms-2">Tải lại trang</a>
     <a class="dismiss">🗙</a>
 </div>

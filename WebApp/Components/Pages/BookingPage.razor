@@ -8,47 +8,49 @@
 @inject ViewShowtimesByMovieIdUseCase ViewShowtimesByMovieIdUseCase
 @inject NavigationManager Navigation
 
-<PageTitle>Đặt vé & Chọn ghế — CineMax VIP</PageTitle>
+<PageTitle>Chọn Ghế & Đặt Vé — CineMax VIP</PageTitle>
 
-<div class="container-fluid px-0">
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+<div>
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
         <div>
-            <h2 class="fw-bold text-white mb-1">
-                🎟️ Sơ Đồ Ghế & Đặt Vé Trực Tuyến
+            <h2 class="fw-bold text-white mb-1" style="font-size: 26px;">
+                Chọn Ghế & Đặt Vé Trực Tuyến
             </h2>
-            <p class="text-secondary small mb-0" style="color: #94a3b8 !important;">
-                Xử lý giao dịch an toàn với <strong>IDbTransaction (K2.2)</strong> & Ngăn chặn tranh chấp ghế <strong>(Luật 1 - K1.3)</strong>
+            <p class="text-secondary small mb-0">
+                Lựa chọn vị trí ghế ngồi yêu thích và hoàn tất thanh toán giữ chỗ nhanh chóng
             </p>
         </div>
         <div class="mt-2 mt-md-0">
-            <a href="/" class="btn btn-cinema-outline btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Quay lại trang chủ
+            <a href="/" class="btn-cinema-outline" style="font-size: 13.5px; padding: 7px 16px;">
+                <i class="bi bi-arrow-left"></i>
+                <span>Xem Phim Khác</span>
             </a>
         </div>
     </div>
 
-    <!-- Thông báo lỗi nghiệp vụ Luật 1 (K1.3 & K3.3) -->
+    <!-- Thông báo lỗi khi ghế đã bị đặt trước -->
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-lg border-danger mb-4" 
-             style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #fecdd3;" role="alert">
-            <i class="bi bi-exclamation-triangle-fill fs-3 me-3 text-danger"></i>
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-lg mb-4" 
+             style="background: rgba(225, 29, 72, 0.15); border: 1px solid rgba(225, 29, 72, 0.4); color: #fecdd3;" role="alert">
+            <i class="bi bi-exclamation-circle-fill fs-3 me-3 text-danger"></i>
             <div>
-                <strong class="d-block text-white mb-1">CẢNH BÁO TRANH CHẤP GHẾ (LUẬT 1 - K1.3):</strong>
+                <strong class="d-block text-white mb-1">Thông Báo Đặt Chỗ:</strong>
                 <span>@errorMessage</span>
             </div>
             <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => errorMessage = null"></button>
         </div>
     }
 
+    <!-- Thông báo thành công -->
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-lg border-success mb-4" 
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-lg mb-4" 
              style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0;" role="alert">
             <i class="bi bi-check-circle-fill fs-3 me-3 text-success"></i>
             <div>
-                <strong class="d-block text-white mb-1">GIAO DỊCH THÀNH CÔNG (K2.2 & K2.4):</strong>
+                <strong class="d-block text-white mb-1">Đặt Vé Thành Công!</strong>
                 <span>@successMessage</span>
             </div>
             <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => successMessage = null"></button>
@@ -58,72 +60,77 @@
     @if (isLoading)
     {
         <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted small">Đang nạp dữ liệu suất chiếu & sơ đồ ghế từ SQL Server...</p>
+            <div class="spinner-border text-danger" role="status"></div>
+            <p class="mt-2 text-secondary small">Đang tải sơ đồ ghế...</p>
         </div>
     }
     else if (currentShowtime == null)
     {
-        <div class="alert alert-warning">
-            Không tìm thấy thông tin suất chiếu. Vui lòng chọn một suất chiếu khác từ danh sách.
+        <div class="cinema-card p-4 text-center">
+            <p class="text-secondary mb-3">Không tìm thấy thông tin suất chiếu đã chọn.</p>
+            <a href="/" class="btn-cinema-primary">Quay lại chọn phim</a>
         </div>
     }
     else
     {
         <div class="row g-4">
-            <!-- Cột trái: Sơ đồ ghế Cinema -->
+            <!-- Cột trái: Sơ đồ phòng chiếu và chọn ghế -->
             <div class="col-lg-8">
-                <div class="card p-4 shadow-sm">
-                    <!-- Thông tin phim & phòng chiếu -->
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <div class="cinema-card p-4 shadow-sm">
+                    <!-- Thông tin suất chiếu -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
                         <div>
-                            <span class="badge-genre mb-1 d-inline-block">@currentShowtime.Auditorium?.Name</span>
-                            <h4 class="fw-bold text-white mb-1">@currentShowtime.Movie?.Title</h4>
-                            <div class="text-muted small">
-                                🕒 @currentShowtime.StartTime.ToString("HH:mm") - @currentShowtime.EndTime.ToString("HH:mm") 
-                                (@currentShowtime.StartTime.ToString("dd/MM/yyyy"))
+                            <span class="badge mb-1" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                                @currentShowtime.Auditorium?.Name
+                            </span>
+                            <h3 class="fw-bold text-white mb-1 fs-4">@currentShowtime.Movie?.Title</h3>
+                            <div class="text-secondary small">
+                                <i class="bi bi-clock me-1"></i>
+                                @currentShowtime.StartTime.ToString("HH:mm") - @currentShowtime.EndTime.ToString("HH:mm") 
+                                · Ngày @currentShowtime.StartTime.ToString("dd/MM/yyyy")
                             </div>
                         </div>
+
                         <div class="text-end mt-2 mt-md-0">
-                            <div class="text-muted small">Đơn giá vé:</div>
-                            <span class="fs-5 fw-bold" style="color: #38bdf8;">
+                            <div class="text-secondary small">Giá vé tiêu chuẩn:</div>
+                            <span class="fs-4 fw-bold text-white">
                                 @currentShowtime.Price.ToString("N0") đ
                             </span>
                         </div>
                     </div>
 
-                    <!-- Màn hình chiếu cong với hiệu ứng dạ quang Cyber Cyan -->
-                    <div class="cinema-screen-container">
-                        <div class="cinema-screen"></div>
-                        <div class="cinema-screen-label">MÀN HÌNH CHIẾU (SCREEN)</div>
+                    <!-- Màn hình chiếu cong phát sáng -->
+                    <div class="screen-area">
+                        <div class="curved-screen"></div>
+                        <div class="screen-text">MÀN HÌNH CHIẾU (SCREEN)</div>
                     </div>
 
                     <!-- Chú thích loại ghế -->
-                    <div class="d-flex justify-content-center flex-wrap gap-4 my-3 small text-secondary">
+                    <div class="d-flex justify-content-center flex-wrap gap-4 my-4 small text-secondary">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="seat-btn d-inline-block text-center" style="width: 24px; height: 24px; line-height: 24px; font-size: 10px;"></span>
-                            Ghế thường
+                            <span class="seat" style="width: 24px; height: 24px; font-size: 10px; cursor: default;"></span>
+                            <span>Ghế Thường</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="seat-btn seat-vip d-inline-block text-center" style="width: 24px; height: 24px; line-height: 24px; font-size: 10px;"></span>
-                            Ghế VIP (Hàng B, C)
+                            <span class="seat seat-vip" style="width: 24px; height: 24px; font-size: 10px; cursor: default;"></span>
+                            <span>Ghế VIP (Hàng B, C)</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="seat-btn seat-selected d-inline-block text-center" style="width: 24px; height: 24px; line-height: 24px; font-size: 10px;"></span>
-                            Đang chọn
+                            <span class="seat seat-selected" style="width: 24px; height: 24px; font-size: 10px; cursor: default;"></span>
+                            <span>Đang Chọn</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="seat-btn seat-booked d-inline-block text-center" style="width: 24px; height: 24px; line-height: 24px; font-size: 10px;"></span>
-                            Đã bán (Khóa)
+                            <span class="seat seat-booked" style="width: 24px; height: 24px; font-size: 10px; cursor: default;"></span>
+                            <span>Đã Bán</span>
                         </div>
                     </div>
 
-                    <!-- Lưới sơ đồ ghế (24 ghế: A1-A8, B1-B8, C1-C8) -->
+                    <!-- Lưới sơ đồ 24 ghế (A1-A8, B1-B8, C1-C8) -->
                     <div class="d-flex flex-column gap-2 align-items-center my-4">
                         @foreach (var rowGroup in seatStatusList.GroupBy(s => s.Seat.Row))
                         {
                             <div class="d-flex gap-2 align-items-center">
-                                <span class="fw-bold text-muted text-center" style="width: 22px; font-size: 13px;">@rowGroup.Key</span>
+                                <span class="fw-bold text-secondary text-center" style="width: 24px; font-size: 13px;">@rowGroup.Key</span>
                                 @foreach (var seatItem in rowGroup.OrderBy(s => s.Seat.Number))
                                 {
                                     var isSelected = selectedSeatIds.Contains(seatItem.Seat.SeatId);
@@ -131,7 +138,7 @@
                                     var isVip = seatItem.Seat.SeatType == "VIP";
 
                                     <button type="button"
-                                            class="seat-btn @(isBooked ? "seat-booked" : isSelected ? "seat-selected" : isVip ? "seat-vip" : "")"
+                                            class="seat @(isBooked ? "seat-booked" : isSelected ? "seat-selected" : isVip ? "seat-vip" : "")"
                                             disabled="@isBooked"
                                             @onclick="() => ToggleSeat(seatItem.Seat.SeatId)"
                                             title="Ghế @seatItem.Seat.SeatNumber (@seatItem.Seat.SeatType)">
@@ -142,38 +149,36 @@
                         }
                     </div>
 
-                    <!-- Thanh Demo Luật 1 -->
-                    <div class="mt-3 pt-3 d-flex flex-wrap justify-content-between align-items-center gap-2" 
-                         style="border-top: 1px solid rgba(255,255,255,0.06);">
-                        <div class="text-secondary small" style="max-width: 500px;">
-                            <i class="bi bi-shield-lock-fill text-warning me-1"></i>
-                            <strong>Luật 1:</strong> Một ghế trong một suất chiếu chỉ bán đúng 1 lần (kiểm tra logic + Unique key + IDbTransaction).
-                        </div>
-                        <button class="btn btn-outline-warning btn-sm fw-semibold rounded-pill px-3" @onclick="SimulateConflictTestAsync">
-                            ⚡ Demo Luật 1 (Cố tình đặt trùng)
+                    <!-- Nút mô phỏng tranh chấp ghế (Dùng khi báo cáo / vấn đáp) -->
+                    <div class="mt-4 pt-3 d-flex justify-content-between align-items-center" style="border-top: 1px solid var(--border-light);">
+                        <span class="text-muted small" style="font-size: 12px;">
+                            * Mỗi ghế trong suất chiếu chỉ được giữ chỗ duy nhất một lần
+                        </span>
+                        <button class="btn btn-sm btn-outline-secondary opacity-75" @onclick="SimulateConflictTestAsync" style="font-size: 11.5px; border-radius: 6px;">
+                            <i class="bi bi-shield-check me-1"></i> Kiểm tra trùng ghế
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Cột phải: Form thông tin khách hàng & Xác nhận đặt vé -->
+            <!-- Cột phải: Thông tin đơn hàng & Đặt vé -->
             <div class="col-lg-4">
-                <div class="card p-4 shadow-sm">
-                    <h5 class="fw-bold text-white mb-3 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                        📋 Thông Tin Đặt Vé
-                    </h5>
+                <div class="cinema-card p-4 shadow-sm">
+                    <h4 class="fw-bold text-white mb-3 pb-2" style="border-bottom: 1px solid var(--border-light); font-size: 18px;">
+                        Thông Tin Đặt Vé
+                    </h4>
 
-                    <!-- Tóm tắt ghế đang chọn -->
+                    <!-- Danh sách ghế đang chọn -->
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">Ghế đã chọn:</label>
+                        <label class="form-label text-secondary small fw-semibold">Vị trí ghế đã chọn:</label>
                         @if (selectedSeatIds.Any())
                         {
                             <div class="d-flex flex-wrap gap-1">
                                 @foreach (var id in selectedSeatIds)
                                 {
                                     var seat = seatStatusList.FirstOrDefault(s => s.Seat.SeatId == id)?.Seat;
-                                    <span class="badge px-2 py-1" style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8;">
-                                        @seat?.SeatNumber (@seat?.SeatType)
+                                    <span class="badge px-2 py-1" style="background: rgba(225, 29, 72, 0.2); color: #f43f5e; border: 1px solid rgba(225, 29, 72, 0.4); font-size: 12px;">
+                                        Ghế @seat?.SeatNumber (@seat?.SeatType)
                                     </span>
                                 }
                             </div>
@@ -184,46 +189,43 @@
                         }
                     </div>
 
-                    <!-- Tổng tiền -->
-                    <div class="p-3 rounded-3 mb-3 d-flex justify-content-between align-items-center" 
-                         style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.06);">
-                        <span class="fw-semibold text-secondary">Tổng thanh toán:</span>
-                        <span class="fs-4 fw-bold" style="color: #38bdf8;">
+                    <!-- Hộp tổng tiền -->
+                    <div class="p-3 rounded-3 mb-4 d-flex justify-content-between align-items-center" 
+                         style="background: rgba(7, 11, 20, 0.8); border: 1px solid var(--border-light);">
+                        <span class="fw-semibold text-secondary small">Tổng thanh toán:</span>
+                        <span class="fs-4 fw-bold" style="color: #e11d48;">
                             @((selectedSeatIds.Count * currentShowtime.Price).ToString("N0")) đ
                         </span>
                     </div>
 
-                    <!-- Form thông tin khách hàng -->
-                    <div class="mb-2">
-                        <label class="form-label text-secondary small fw-semibold">Họ và tên *</label>
-                        <input type="text" class="form-control form-control-sm" @bind="customerName" placeholder="Nguyễn Văn A" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label text-secondary small fw-semibold">Email *</label>
-                        <input type="email" class="form-control form-control-sm" @bind="customerEmail" placeholder="nguyenvana@gmail.com" />
+                    <!-- Form nhập thông tin người đặt -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-semibold">Họ và tên khách hàng *</label>
+                        <input type="text" class="form-control" @bind="customerName" placeholder="Ví dụ: Trần Thị Thu" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-semibold">Số điện thoại *</label>
-                        <input type="tel" class="form-control form-control-sm" @bind="customerPhone" placeholder="0901234567" />
+                        <label class="form-label text-secondary small fw-semibold">Địa chỉ Email *</label>
+                        <input type="email" class="form-control" @bind="customerEmail" placeholder="thutran@example.com" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small fw-semibold">Số điện thoại liên hệ *</label>
+                        <input type="tel" class="form-control" @bind="customerPhone" placeholder="0901234567" />
                     </div>
 
-                    <button class="btn btn-cinema w-100 py-2 fs-6 mb-2"
+                    <button class="btn-cinema-primary w-100 py-3 fs-6"
                             disabled="@(isSubmitting || !selectedSeatIds.Any())"
                             @onclick="SubmitBookingAsync">
                         @if (isSubmitting)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                            <span>Đang lưu vào SQL Server...</span>
+                            <span>Đang xử lý thanh toán...</span>
                         }
                         else
                         {
-                            <span>💳 Xác Nhận & Đặt Vé Ngay</span>
+                            <i class="bi bi-credit-card-2-front"></i>
+                            <span>Xác Nhận Đặt Vé Ngay</span>
                         }
                     </button>
-
-                    <div class="text-center text-muted small" style="font-size: 11px;">
-                        <i class="bi bi-lock-fill me-1"></i> Ghi Header (Bookings) & Line (Tickets) trong 1 Transaction (K2.2)
-                    </div>
                 </div>
             </div>
         </div>
@@ -274,7 +276,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = "Lỗi khi tải dữ liệu từ CSDL: " + ex.Message;
+            errorMessage = "Lỗi nạp dữ liệu: " + ex.Message;
         }
         finally
         {
@@ -322,18 +324,15 @@
                 Status = "Confirmed"
             };
 
-            // Gọi UseCase chứa LUẬT 1 (Tranh chấp ghế) & Transaction K2.2
             var bookingId = await CreateBookingUseCase.ExecuteAsync(booking, selectedSeatIds);
 
-            successMessage = $"Đặt vé thành công! Mã đơn đặt vé của bạn là #{bookingId}. Dữ liệu Header và {selectedSeatIds.Count} vé (Lines) đã được lưu đồng bộ vào SQL Server.";
+            successMessage = $"Quý khách đã đặt vé thành công! Mã đơn đặt vé của bạn là #{bookingId}.";
             selectedSeatIds.Clear();
 
-            // Tải lại sơ đồ ghế
             await LoadShowtimeAndSeatsAsync();
         }
         catch (CoreBusiness.Exceptions.SeatAlreadyBookedException ex)
         {
-            // Bắt lỗi vi phạm LUẬT 1 và hiển thị thông báo thân thiện (K1.3 & K3.3)
             errorMessage = ex.Message;
             await LoadShowtimeAndSeatsAsync();
         }
@@ -368,8 +367,8 @@
             var conflictBooking = new Booking
             {
                 ShowtimeId = currentShowtime.ShowtimeId,
-                CustomerName = "Khách Hàng B (Tranh chấp)",
-                CustomerEmail = "khachb@example.com",
+                CustomerName = "Khách Hàng Tranh Chấp",
+                CustomerEmail = "test@example.com",
                 CustomerPhone = "0987654321",
                 BookingTime = DateTime.Now,
                 TotalAmount = currentShowtime.Price,
@@ -382,7 +381,7 @@
             }
             catch (CoreBusiness.Exceptions.SeatAlreadyBookedException ex)
             {
-                errorMessage = $"[DEMO LUẬT 1 KÍCH HOẠT THÀNH CÔNG] {ex.Message}";
+                errorMessage = ex.Message;
             }
         }
     }

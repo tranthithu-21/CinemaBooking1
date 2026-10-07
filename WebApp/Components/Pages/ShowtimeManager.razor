@@ -5,32 +5,35 @@
 @inject IShowtimeRepository ShowtimeRepository
 @inject IAuditoriumRepository AuditoriumRepository
 
-<PageTitle>Quản Lý Suất Chiếu — Demo Luật 2 — CineMax VIP</PageTitle>
+<PageTitle>Lịch Chiếu & Quản Lý Phòng — CineMax VIP</PageTitle>
 
-<div class="container-fluid px-0">
+<div>
     <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
         <div>
-            <h2 class="fw-bold text-white mb-1">📅 Quản Lý Lịch Chiếu & Suất Chiếu</h2>
-            <p class="text-secondary small mb-0" style="color: #94a3b8 !important;">
-                Cài đặt <strong>LUẬT 2 (K1.3)</strong>: Tự tính thời gian kết thúc = <code>Thời lượng + 15 phút dọn phòng</code> & Chặn chồng lấn phòng chiếu
+            <h2 class="fw-bold text-white mb-1" style="font-size: 26px;">
+                Quản Lý Lịch Chiếu Phim
+            </h2>
+            <p class="text-secondary small mb-0">
+                Sắp xếp khung giờ chiếu và phân bổ phòng chiếu tại cụm rạp CineMax
             </p>
         </div>
         <div class="mt-2 mt-md-0">
-            <a href="/" class="btn btn-cinema-outline btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Quay lại trang chủ
+            <a href="/" class="btn-cinema-outline" style="font-size: 13.5px; padding: 7px 16px;">
+                <i class="bi bi-arrow-left"></i>
+                <span>Về Trang Chủ</span>
             </a>
         </div>
     </div>
 
-    <!-- Thông báo lỗi / thành công (K1.3 & K3.3) -->
+    <!-- Thông báo lỗi khi trùng lịch phòng -->
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-lg border-danger mb-4" 
-             style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #fecdd3;" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-lg mb-4" 
+             style="background: rgba(225, 29, 72, 0.15); border: 1px solid rgba(225, 29, 72, 0.4); color: #fecdd3;" role="alert">
             <i class="bi bi-calendar-x-fill fs-3 me-3 text-danger"></i>
             <div>
-                <strong class="d-block text-white mb-1">CẢNH BÁO TRÙNG LỊCH PHÒNG CHIẾU (LUẬT 2 - K1.3):</strong>
+                <strong class="d-block text-white mb-1">Xung Đột Lịch Chiếu:</strong>
                 <span>@errorMessage</span>
             </div>
             <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => errorMessage = null"></button>
@@ -39,11 +42,11 @@
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-lg border-success mb-4" 
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-lg mb-4" 
              style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0;" role="alert">
             <i class="bi bi-check-circle-fill fs-3 me-3 text-success"></i>
             <div>
-                <strong class="d-block text-white mb-1">THÀNH CÔNG:</strong>
+                <strong class="d-block text-white mb-1">Thành Công!</strong>
                 <span>@successMessage</span>
             </div>
             <button type="button" class="btn-close ms-auto btn-close-white" @onclick="() => successMessage = null"></button>
@@ -51,16 +54,16 @@
     }
 
     <div class="row g-4">
-        <!-- Cột trái: Form tạo suất chiếu mới -->
+        <!-- Cột trái: Form tạo lịch chiếu mới -->
         <div class="col-lg-5">
-            <div class="card p-4 shadow-sm">
-                <h5 class="fw-bold text-white mb-3 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    ➕ Tạo Suất Chiếu Mới
-                </h5>
+            <div class="cinema-card p-4 shadow-sm">
+                <h4 class="fw-bold text-white mb-3 pb-2" style="border-bottom: 1px solid var(--border-light); font-size: 18px;">
+                    Tạo Lịch Chiếu Mới
+                </h4>
 
                 <div class="mb-3">
-                    <label class="form-label text-secondary small fw-semibold">Chọn phim *</label>
-                    <select class="form-select form-select-sm" @bind="selectedMovieId">
+                    <label class="form-label text-secondary small fw-semibold">Chọn phim chiếu *</label>
+                    <select class="form-select" @bind="selectedMovieId">
                         @if (movies != null)
                         {
                             @foreach (var m in movies)
@@ -73,7 +76,7 @@
 
                 <div class="mb-3">
                     <label class="form-label text-secondary small fw-semibold">Phòng chiếu *</label>
-                    <select class="form-select form-select-sm" @bind="selectedAuditoriumId">
+                    <select class="form-select" @bind="selectedAuditoriumId">
                         @if (auditoriums != null)
                         {
                             @foreach (var a in auditoriums)
@@ -85,22 +88,22 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label text-secondary small fw-semibold">Thời gian bắt đầu chiếu *</label>
-                    <input type="datetime-local" class="form-control form-control-sm" @bind="startTime" />
+                    <label class="form-label text-secondary small fw-semibold">Thời gian bắt đầu *</label>
+                    <input type="datetime-local" class="form-control" @bind="startTime" />
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label text-secondary small fw-semibold">Giá vé (VNĐ) *</label>
-                    <input type="number" step="5000" class="form-control form-control-sm" @bind="price" />
+                    <input type="number" step="5000" class="form-control" @bind="price" />
                 </div>
 
-                <!-- Box thông tin thời gian tự động tính -->
-                <div class="p-3 rounded-3 mb-4" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
+                <!-- Box thông tin thời gian kết thúc tự tính -->
+                <div class="p-3 rounded-3 mb-4" style="background: rgba(7, 11, 20, 0.8); border: 1px solid var(--border-light);">
                     <div class="small text-secondary mb-1">
-                        ⏱️ <strong>Quy tắc tự động tính (Luật 2):</strong>
+                        ⏱️ <strong>Quy chuẩn giãn cách phòng chiếu:</strong>
                     </div>
                     <div class="small text-white">
-                        Giờ kết thúc = Giờ bắt đầu + @(SelectedMovieDuration)p (phim) + 15p (dọn phòng)
+                        Thời gian kết thúc = Giờ bắt đầu + @(SelectedMovieDuration)p (phim) + 15p (vệ sinh phòng)
                     </div>
                     <div class="small fw-bold mt-1" style="color: #38bdf8;">
                         ➜ Dự kiến kết thúc: @(startTime.AddMinutes(SelectedMovieDuration + 15).ToString("HH:mm dd/MM/yyyy"))
@@ -108,63 +111,73 @@
                 </div>
 
                 <div class="d-flex flex-column gap-2">
-                    <button class="btn btn-cinema w-100 py-2 fw-bold" @onclick="CreateShowtimeAsync">
-                        <i class="bi bi-save2-fill me-1"></i> Lưu Suất Chiếu Vào SQL Server
+                    <button class="btn-cinema-primary w-100 py-3" @onclick="CreateShowtimeAsync">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Lưu Suất Chiếu</span>
                     </button>
-                    <button class="btn btn-outline-warning btn-sm py-2 rounded-pill fw-semibold" @onclick="SimulateOverlapConflictAsync">
-                        ⚡ Thử Trùng Lịch (Demo Luật 2)
+                    
+                    <button class="btn btn-sm btn-outline-secondary opacity-75 mt-2" @onclick="SimulateOverlapConflictAsync" style="font-size: 11.5px; border-radius: 6px;">
+                        <i class="bi bi-clock-history me-1"></i> Thử trùng lịch (Kiểm tra tránh xung đột)
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Cột phải: Danh sách các suất chiếu hiện có trên SQL Server -->
+        <!-- Cột phải: Danh sách các suất chiếu hiện có -->
         <div class="col-lg-7">
-            <div class="card p-4 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <h5 class="fw-bold text-white mb-0">📋 Lịch Chiếu Đang Có Trong CSDL</h5>
-                    <button class="btn btn-cinema-outline btn-sm" @onclick="LoadDataAsync">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Làm mới
+            <div class="cinema-card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 1px solid var(--border-light);">
+                    <h4 class="fw-bold text-white mb-0" style="font-size: 18px;">Lịch Chiếu Hiện Tại</h4>
+                    <button class="btn-cinema-outline py-1 px-3" style="font-size: 12.5px;" @onclick="LoadDataAsync">
+                        <i class="bi bi-arrow-clockwise"></i> Làm mới
                     </button>
                 </div>
 
                 @if (showtimes == null)
                 {
                     <div class="text-center py-4">
-                        <div class="spinner-border spinner-border-sm text-primary"></div>
-                        <span class="ms-2 text-muted small">Đang nạp danh sách từ SQL Server...</span>
+                        <div class="spinner-border spinner-border-sm text-danger"></div>
+                        <span class="ms-2 text-secondary small">Đang nạp danh sách...</span>
                     </div>
                 }
                 else if (!showtimes.Any())
                 {
-                    <p class="text-muted small fst-italic">Chưa có suất chiếu nào được tạo trong CSDL.</p>
+                    <p class="text-secondary small fst-italic py-3">Chưa có suất chiếu nào được tạo.</p>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="cinema-table">
                             <thead>
-                                <tr style="color: #64748b; font-size: 12px; text-transform: uppercase;">
+                                <tr>
                                     <th>Phim</th>
                                     <th>Phòng</th>
-                                    <th>Bắt đầu</th>
-                                    <th>Kết thúc (+15p)</th>
-                                    <th>Giá vé</th>
+                                    <th>Giờ Chiếu</th>
+                                    <th>Giá Vé</th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody style="font-size: 13.5px;">
+                            <tbody>
                                 @foreach (var st in showtimes)
                                 {
                                     <tr>
-                                        <td class="fw-bold text-white">@st.Movie?.Title</td>
-                                        <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">@st.Auditorium?.Name</span></td>
-                                        <td class="text-success fw-bold">@st.StartTime.ToString("HH:mm dd/MM")</td>
-                                        <td class="text-warning fw-bold">@st.EndTime.ToString("HH:mm dd/MM")</td>
-                                        <td style="color: #38bdf8;">@st.Price.ToString("N0") đ</td>
                                         <td>
-                                            <a href="/booking/@st.ShowtimeId" class="btn btn-cinema-outline btn-sm py-0 px-2" style="font-size: 12px;">
-                                                Đặt vé
+                                            <div class="fw-bold text-white">@st.Movie?.Title</div>
+                                            <div class="text-secondary small">Kết thúc: @st.EndTime.ToString("HH:mm") (+15p)</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                                                @st.Auditorium?.Name
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-white fw-bold">@st.StartTime.ToString("HH:mm")</span>
+                                            <div class="text-secondary small">@st.StartTime.ToString("dd/MM")</div>
+                                        </td>
+                                        <td class="fw-bold text-white">@st.Price.ToString("N0") đ</td>
+                                        <td class="text-end">
+                                            <a href="/booking/@st.ShowtimeId" class="btn-cinema-outline py-1 px-3" style="font-size: 12px;">
+                                                Đặt Vé
                                             </a>
                                         </td>
                                     </tr>
@@ -222,14 +235,12 @@
 
         try
         {
-            // Gọi UseCase cài đặt LUẬT 2: Tránh trùng lịch phòng chiếu
             var id = await CreateShowtimeUseCase.ExecuteAsync(selectedMovieId, selectedAuditoriumId, startTime, price);
-            successMessage = $"Tạo suất chiếu thành công (Mã #{id})! Suất chiếu đã được lưu an toàn vào SQL Server.";
+            successMessage = $"Đã tạo suất chiếu thành công!";
             await LoadDataAsync();
         }
         catch (CoreBusiness.Exceptions.ShowtimeOverlapException ex)
         {
-            // Bắt lỗi vi phạm LUẬT 2 và hiển thị thông báo thân thiện (K1.3 & K3.3)
             errorMessage = ex.Message;
         }
         catch (Exception ex)
@@ -246,7 +257,7 @@
         selectedMovieId = existing.MovieId;
         selectedAuditoriumId = existing.AuditoriumId;
 
-        // Chọn giờ bắt đầu nằm ngay giữa suất chiếu đã có để kích hoạt lỗi
+        // Cố tình chọn giờ bắt đầu nằm giữa suất chiếu đã có
         startTime = existing.StartTime.AddMinutes(30);
 
         try
@@ -255,7 +266,7 @@
         }
         catch (CoreBusiness.Exceptions.ShowtimeOverlapException ex)
         {
-            errorMessage = $"[DEMO LUẬT 2 KÍCH HOẠT THÀNH CÔNG] {ex.Message}";
+            errorMessage = ex.Message;
         }
     }
 }
