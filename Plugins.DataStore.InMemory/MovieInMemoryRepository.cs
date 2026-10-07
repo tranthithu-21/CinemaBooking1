@@ -10,7 +10,7 @@ namespace Plugins.DataStore.InMemory
             new Movie
             {
                 MovieId = 1,
-                Title = "Dune: Part Two",
+                Title = "Dune: Hành Tinh Cát - Phần Hai",
                 Genre = "Sci-Fi / Adventure",
                 DurationMinutes = 166,
                 Description = "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
@@ -30,7 +30,7 @@ namespace Plugins.DataStore.InMemory
             new Movie
             {
                 MovieId = 3,
-                Title = "Godzilla x Kong",
+                Title = "Godzilla x Kong: Đế Chế Mới",
                 Genre = "Action / Sci-Fi",
                 DurationMinutes = 115,
                 Description = "Two ancient titans, Godzilla and Kong, clash in an epic battle as humans unravel their origins.",
@@ -48,6 +48,39 @@ namespace Plugins.DataStore.InMemory
         {
             var movie = _movies.FirstOrDefault(m => m.MovieId == movieId);
             return Task.FromResult(movie);
+        }
+
+        public Task<int> AddMovieAsync(Movie movie)
+        {
+            var maxId = _movies.Any() ? _movies.Max(m => m.MovieId) : 0;
+            movie.MovieId = maxId + 1;
+            _movies.Add(movie);
+            return Task.FromResult(movie.MovieId);
+        }
+
+        public Task UpdateMovieAsync(Movie movie)
+        {
+            var existing = _movies.FirstOrDefault(m => m.MovieId == movie.MovieId);
+            if (existing != null)
+            {
+                existing.Title = movie.Title;
+                existing.Description = movie.Description;
+                existing.DurationMinutes = movie.DurationMinutes;
+                existing.PosterUrl = movie.PosterUrl;
+                existing.Genre = movie.Genre;
+                existing.ReleaseDate = movie.ReleaseDate;
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteMovieAsync(int movieId)
+        {
+            var existing = _movies.FirstOrDefault(m => m.MovieId == movieId);
+            if (existing != null)
+            {
+                _movies.Remove(existing);
+            }
+            return Task.CompletedTask;
         }
     }
 }

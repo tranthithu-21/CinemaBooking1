@@ -1,3 +1,6 @@
+using Plugins.DataStore.SqlServer;
+using UseCases;
+using UseCases.DataStorePluginInterfaces;
 using WebApp.Components;
 
 namespace WebApp
@@ -12,9 +15,26 @@ namespace WebApp
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            // Dependency Injection (Composition Root)
-            builder.Services.AddSingleton<UseCases.DataStorePluginInterfaces.IMovieRepository, Plugins.DataStore.InMemory.MovieInMemoryRepository>();
-            builder.Services.AddTransient<UseCases.ViewMoviesUseCase>();
+            // SQL Server Configuration
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? "Server=(localdb)\\MSSQLLocalDB;Database=CinemaBookingDB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
+            builder.Services.AddSingleton(new SqlServerConfiguration(connectionString));
+
+            // Dependency Injection (Composition Root) - Repositories (K1.2 & K1.4)
+            builder.Services.AddTransient<IMovieRepository, MovieSqlServerRepository>();
+            builder.Services.AddTransient<IAuditoriumRepository, AuditoriumSqlServerRepository>();
+            builder.Services.AddTransient<ISeatRepository, SeatSqlServerRepository>();
+            builder.Services.AddTransient<IShowtimeRepository, ShowtimeSqlServerRepository>();
+            builder.Services.AddTransient<IBookingRepository, BookingSqlServerRepository>();
+
+            // Use Cases (Application Business Rules & 2 Core Business Rules - K1.3)
+            builder.Services.AddTransient<ViewMoviesUseCase>();
+            builder.Services.AddTransient<ViewShowtimesByMovieIdUseCase>();
+            builder.Services.AddTransient<GetShowtimeByIdUseCase>();
+            builder.Services.AddTransient<GetAuditoriumSeatsUseCase>();
+            builder.Services.AddTransient<CreateBookingUseCase>();   // Luật 1: Tranh chấp ghế + Transaction K2.2
+            builder.Services.AddTransient<CreateShowtimeUseCase>();  // Luật 2: Tránh trùng lịch phòng chiếu
+            builder.Services.AddTransient<ViewBookingsUseCase>();
 
             var app = builder.Build();
 
@@ -22,12 +42,10 @@ namespace WebApp
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
             app.UseAntiforgery();
 

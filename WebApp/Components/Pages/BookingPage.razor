@@ -1,0 +1,366 @@
+@page "/booking"
+@page "/booking/{ShowtimeId:int}"
+@rendermode InteractiveServer
+@inject GetShowtimeByIdUseCase GetShowtimeByIdUseCase
+@inject GetAuditoriumSeatsUseCase GetAuditoriumSeatsUseCase
+@inject CreateBookingUseCase CreateBookingUseCase
+@inject ViewMoviesUseCase ViewMoviesUseCase
+@inject ViewShowtimesByMovieIdUseCase ViewShowtimesByMovieIdUseCase
+@inject NavigationManager Navigation
+
+<PageTitle>Đặt vé & Chọn ghế — CineMax</PageTitle>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">🎟️ Đặt Vé & Chọn Ghế Trực Tuyến</h2>
+            <p class="text-muted mb-0">Hệ thống xử lý giao dịch an toàn với Database Transaction & Chặn tranh chấp ghế (Luật 1)</p>
+        </div>
+        <div>
+            <a href="/" class="btn btn-outline-secondary btn-sm">← Về trang chủ</a>
+        </div>
+    </div>
+
+    <!-- Thông báo trạng thái / Lỗi nghiệp vụ (K1.3 & K3.3) -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+            <span class="fs-4 me-2">⚠️</span>
+            <div>
+                <strong>Lỗi vi phạm nghiệp vụ (Luật 1):</strong> @errorMessage
+            </div>
+            <button type="button" class="btn-close ms-auto" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+            <span class="fs-4 me-2">🎉</span>
+            <div>
+                <strong>Thành công:</strong> @successMessage
+            </div>
+            <button type="button" class="btn-close ms-auto" @onclick="() => successMessage = null"></button>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Đang tải dữ liệu suất chiếu & sơ đồ ghế từ SQL Server...</p>
+        </div>
+    }
+    else if (currentShowtime == null)
+    {
+        <div class="alert alert-warning">
+            Không tìm thấy thông tin suất chiếu. Vui lòng chọn một suất chiếu khác từ danh sách.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Cột trái: Sơ đồ ghế (24 ghế chia 3 hàng A, B, C) -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-3 p-4 bg-light">
+                    <!-- Thông tin phim & phòng -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-1">@currentShowtime.Movie?.Title</h4>
+                            <span class="badge bg-primary me-2">@currentShowtime.Auditorium?.Name</span>
+                            <span class="text-muted small">
+                                🕒 @currentShowtime.StartTime.ToString("HH:mm") - @currentShowtime.EndTime.ToString("HH:mm") (@currentShowtime.StartTime.ToString("dd/MM/yyyy"))
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle">
+                                Giá vé: @currentShowtime.Price.ToString("N0") VNĐ
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Màn hình chiếu phim -->
+                    <div class="text-center my-3">
+                        <div class="bg-dark text-white py-2 rounded-2 shadow-sm mb-2" style="letter-spacing: 4px; font-size: 13px;">
+                            🖥️ MÀN HÌNH CHIẾU (SCREEN)
+                        </div>
+                        <div style="height: 4px; background: linear-gradient(to right, transparent, #38bdf8, transparent); border-radius: 2px;"></div>
+                    </div>
+
+                    <!-- Chú thích loại ghế -->
+                    <div class="d-flex justify-content-center gap-4 my-3 text-muted small">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-white text-dark border p-2" style="width: 20px; height: 20px;"></span> Ghế trống
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-primary p-2" style="width: 20px; height: 20px;"></span> Đang chọn
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-danger p-2" style="width: 20px; height: 20px;"></span> Đã bán (Khóa)
+                        </div>
+                    </div>
+
+                    <!-- Lưới sơ đồ ghế -->
+                    <div class="seat-grid d-flex flex-column gap-2 align-items-center my-3">
+                        @foreach (var rowGroup in seatStatusList.GroupBy(s => s.Seat.Row))
+                        {
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="fw-bold text-muted me-2" style="width: 20px;">@rowGroup.Key</span>
+                                @foreach (var seatItem in rowGroup.OrderBy(s => s.Seat.Number))
+                                {
+                                    var isSelected = selectedSeatIds.Contains(seatItem.Seat.SeatId);
+                                    var isBooked = seatItem.IsBooked;
+
+                                    <button type="button"
+                                            class="btn btn-sm fw-bold @(isBooked ? "btn-danger disabled" : isSelected ? "btn-primary shadow" : "btn-outline-secondary bg-white")"
+                                            style="width: 44px; height: 40px; font-size: 13px;"
+                                            disabled="@isBooked"
+                                            @onclick="() => ToggleSeat(seatItem.Seat.SeatId)">
+                                        @seatItem.Seat.SeatNumber
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Nút giả lập Demo Luật 1: Thử đặt tranh chấp -->
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            💡 <strong>Luật 1:</strong> Một ghế trong một suất chiếu chỉ bán đúng 1 lần. Nếu 2 người cùng bấm, transaction sẽ bảo vệ và báo lỗi thân thiện.
+                        </small>
+                        <button class="btn btn-outline-warning btn-sm" @onclick="SimulateConflictTestAsync">
+                            ⚡ Demo Luật 1 (Cố tình đặt trùng)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Form thông tin khách hàng & Xác nhận đặt vé (K2.2 Header-Line) -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-3 p-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">📋 Thông Tin Đặt Vé</h5>
+
+                    <!-- Tóm tắt ghế đã chọn -->
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Ghế đã chọn:</label>
+                        @if (selectedSeatIds.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var id in selectedSeatIds)
+                                {
+                                    var seat = seatStatusList.FirstOrDefault(s => s.Seat.SeatId == id)?.Seat;
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                        @seat?.SeatNumber
+                                    </span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic small">Chưa chọn ghế nào</p>
+                        }
+                    </div>
+
+                    <!-- Tổng tiền -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+                        <span class="fw-bold">Tổng thanh toán:</span>
+                        <span class="fs-5 fw-bold text-danger">@((selectedSeatIds.Count * currentShowtime.Price).ToString("N0")) VNĐ</span>
+                    </div>
+
+                    <!-- Form thông tin -->
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Họ và tên khách hàng *</label>
+                        <input type="text" class="form-control form-control-sm" @bind="customerName" placeholder="Ví dụ: Nguyễn Văn A" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Email *</label>
+                        <input type="email" class="form-control form-control-sm" @bind="customerEmail" placeholder="nguyenvana@gmail.com" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Số điện thoại *</label>
+                        <input type="tel" class="form-control form-control-sm" @bind="customerPhone" placeholder="0901234567" />
+                    </div>
+
+                    <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm"
+                            disabled="@(isSubmitting || !selectedSeatIds.Any())"
+                            @onclick="SubmitBookingAsync">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span>Đang lưu vào SQL Server...</span>
+                        }
+                        else
+                        {
+                            <span>💳 Xác Nhận & Đặt Vé Ngay</span>
+                        }
+                    </button>
+                    <small class="text-muted d-block text-center mt-2" style="font-size: 11px;">
+                        Ghi Header (Booking) + Line (Tickets) trong 1 Transaction
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? ShowtimeId { get; set; }
+
+    private Showtime? currentShowtime;
+    private List<SeatStatusDto> seatStatusList = new();
+    private List<int> selectedSeatIds = new();
+
+    private string customerName = "Trần Thị Thu";
+    private string customerEmail = "thutran@example.com";
+    private string customerPhone = "0912345678";
+
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShowtimeAndSeatsAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadShowtimeAndSeatsAsync();
+    }
+
+    private async Task LoadShowtimeAndSeatsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var targetShowtimeId = ShowtimeId ?? 1;
+            currentShowtime = await GetShowtimeByIdUseCase.ExecuteAsync(targetShowtimeId);
+
+            if (currentShowtime != null)
+            {
+                seatStatusList = await GetAuditoriumSeatsUseCase.ExecuteAsync(currentShowtime.AuditoriumId, currentShowtime.ShowtimeId);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi tải dữ liệu từ CSDL: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleSeat(int seatId)
+    {
+        errorMessage = null;
+        if (selectedSeatIds.Contains(seatId))
+        {
+            selectedSeatIds.Remove(seatId);
+        }
+        else
+        {
+            selectedSeatIds.Add(seatId);
+        }
+    }
+
+    private async Task SubmitBookingAsync()
+    {
+        if (currentShowtime == null || !selectedSeatIds.Any()) return;
+
+        if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(customerPhone))
+        {
+            errorMessage = "Vui lòng nhập đầy đủ tên và số điện thoại khách hàng.";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var booking = new Booking
+            {
+                ShowtimeId = currentShowtime.ShowtimeId,
+                CustomerName = customerName.Trim(),
+                CustomerEmail = customerEmail.Trim(),
+                CustomerPhone = customerPhone.Trim(),
+                BookingTime = DateTime.Now,
+                TotalAmount = selectedSeatIds.Count * currentShowtime.Price,
+                Status = "Confirmed"
+            };
+
+            // Gọi UseCase chứa LUẬT 1 (Tranh chấp ghế) & Transaction K2.2
+            var bookingId = await CreateBookingUseCase.ExecuteAsync(booking, selectedSeatIds);
+
+            successMessage = $"Đặt vé thành công! Mã đơn đặt vé của bạn là #{bookingId}. Dữ liệu đã được lưu an toàn vào SQL Server.";
+            selectedSeatIds.Clear();
+
+            // Tải lại sơ đồ ghế để cập nhật các ghế vừa mua thành màu đỏ (đã bán)
+            await LoadShowtimeAndSeatsAsync();
+        }
+        catch (CoreBusiness.Exceptions.SeatAlreadyBookedException ex)
+        {
+            // Bắt lỗi vi phạm LUẬT 1 và hiển thị thông báo thân thiện (K1.3 & K3.3)
+            errorMessage = ex.Message;
+            await LoadShowtimeAndSeatsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Có lỗi xảy ra trong quá trình đặt vé: " + ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task SimulateConflictTestAsync()
+    {
+        if (currentShowtime == null) return;
+
+        // Tìm một ghế đã được bán trong danh sách
+        var alreadyBookedSeat = seatStatusList.FirstOrDefault(s => s.IsBooked);
+        if (alreadyBookedSeat == null)
+        {
+            // Nếu chưa có ghế nào bán, ta bán tạm 1 ghế trước để test
+            var firstSeat = seatStatusList.FirstOrDefault();
+            if (firstSeat != null)
+            {
+                selectedSeatIds = new List<int> { firstSeat.Seat.SeatId };
+                await SubmitBookingAsync();
+                alreadyBookedSeat = seatStatusList.FirstOrDefault(s => s.IsBooked);
+            }
+        }
+
+        if (alreadyBookedSeat != null)
+        {
+            // Cố tình tạo đơn đặt vé với ghế đã được bán để demo Luật 1
+            var conflictBooking = new Booking
+            {
+                ShowtimeId = currentShowtime.ShowtimeId,
+                CustomerName = "Khách Hàng B (Tranh chấp)",
+                CustomerEmail = "khachb@example.com",
+                CustomerPhone = "0987654321",
+                BookingTime = DateTime.Now,
+                TotalAmount = currentShowtime.Price,
+                Status = "Confirmed"
+            };
+
+            try
+            {
+                await CreateBookingUseCase.ExecuteAsync(conflictBooking, new List<int> { alreadyBookedSeat.Seat.SeatId });
+            }
+            catch (CoreBusiness.Exceptions.SeatAlreadyBookedException ex)
+            {
+                errorMessage = $"[DEMO LUẬT 1 KÍCH HOẠT THÀNH CÔNG] {ex.Message}";
+            }
+        }
+    }
+}

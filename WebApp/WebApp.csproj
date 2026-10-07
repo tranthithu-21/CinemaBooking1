@@ -4,6 +4,7 @@
     <ProjectReference Include="..\UseCases\UseCases.csproj" />
     <ProjectReference Include="..\CoreBusiness\CoreBusiness.csproj" />
     <ProjectReference Include="..\Plugins.DataStore.InMemory\Plugins.DataStore.InMemory.csproj" />
+    <ProjectReference Include="..\Plugins.DataStore.SqlServer\Plugins.DataStore.SqlServer.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
